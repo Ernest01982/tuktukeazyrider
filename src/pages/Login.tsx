@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { Mail, Lock, Car, User, Phone } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { validateEmail, validatePhone } from '../lib/validation';
+import { validateEmail, validatePhone, validatePassword } from '../lib/validation';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import toast from 'react-hot-toast';
