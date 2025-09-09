@@ -9,7 +9,7 @@ export const validateEmail = (email: string): boolean => {
 
 // Phone validation (basic international format)
 export const validatePhone = (phone: string): boolean => {
-  const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
+  const phoneRegex = /^\+?[\d\s\-()]{10,}$/;
   return phoneRegex.test(phone);
 };
 
@@ -84,7 +84,10 @@ export const validateCoordinates = (lat: number, lng: number): void => {
 };
 
 // Form validation helper
-export const validateForm = (data: Record<string, any>, rules: Record<string, (value: any) => void>): void => {
+export const validateForm = (
+  data: Record<string, unknown>,
+  rules: Record<string, (value: unknown) => void>
+): void => {
   const errors: string[] = [];
   
   Object.entries(rules).forEach(([field, validator]) => {

@@ -138,7 +138,7 @@ export const createIntersectionObserver = (
 // Memory usage monitoring
 export const getMemoryUsage = (): MemoryInfo | null => {
   if ('memory' in performance) {
-    return (performance as any).memory;
+    return (performance as Performance & { memory: MemoryInfo }).memory;
   }
   return null;
 };

@@ -9,20 +9,21 @@ export const sanitizeInput = (input: string): string => {
 };
 
 // Mask sensitive data for logging
-export const maskSensitiveData = (data: Record<string, any>): Record<string, any> => {
+export const maskSensitiveData = (data: Record<string, unknown>): Record<string, unknown> => {
   const sensitiveFields = ['password', 'token', 'key', 'secret', 'phone', 'email'];
-  const masked = { ...data };
-  
+  const masked: Record<string, unknown> = { ...data };
+
   Object.keys(masked).forEach(key => {
     if (sensitiveFields.some(field => key.toLowerCase().includes(field))) {
-      if (typeof masked[key] === 'string') {
-        masked[key] = masked[key].length > 4 
-          ? `${masked[key].slice(0, 2)}***${masked[key].slice(-2)}`
+      const value = masked[key];
+      if (typeof value === 'string') {
+        masked[key] = value.length > 4
+          ? `${value.slice(0, 2)}***${value.slice(-2)}`
           : '***';
       }
     }
   });
-  
+
   return masked;
 };
 

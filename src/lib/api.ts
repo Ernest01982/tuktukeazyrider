@@ -1,9 +1,9 @@
 import { supabase } from './supabase';
-import { AppError, NetworkError, handleError, logError } from './errors';
+import { AppError, handleError, logError } from './errors';
 import { APP_CONFIG } from './constants';
 
 // Generic API response type
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T | null;
   error: AppError | null;
   loading: boolean;
