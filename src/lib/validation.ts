@@ -16,13 +16,9 @@ export const validatePhone = (phone: string): boolean => {
 // Password validation
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
-  
+
   if (password.length < 6) {
     errors.push('Password must be at least 6 characters long');
-  }
-  
-  if (password.length > 0 && password.length < 6) {
-    errors.push('Password is too short');
   }
 
   return {
