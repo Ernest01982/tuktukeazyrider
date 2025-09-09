@@ -80,7 +80,7 @@ serve(async (req) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Tuk Tuk Ride - ${ride.pickup_addr} to ${ride.dropoff_addr}`,
+              name: `Tuk Tuk Ride - ${ride.pickup_address} to ${ride.dropoff_address}`,
               description: `Ride ID: ${ride_id}`,
             },
             unit_amount: Math.round(amount * 100), // Convert to cents
@@ -97,13 +97,15 @@ serve(async (req) => {
       },
     });
 
+    const paymentIntentId =
+      typeof session.payment_intent === 'string' ? session.payment_intent : null;
+
     // Store payment record
     await supabase.from('payments').insert({
       ride_id,
-      rider_id: user.id,
       amount,
-      stripe_session_id: session.id,
-      status: 'pending',
+      stripe_payment_intent_id: paymentIntentId,
+      status: 'PENDING',
     });
 
     return new Response(JSON.stringify({ sessionId: session.id }), {
