@@ -17,8 +17,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
 }, ref) => {
   const baseClasses = 'px-4 py-3 border-2 rounded-lg text-base transition-colors duration-200 min-h-[44px]';
   const stateClasses = error 
-    ? 'border-secondary focus:border-secondary focus:ring-secondary/20' 
-    : 'border-gray-300 focus:border-primary focus:ring-primary/20';
+    ? 'border-secondary focus:border-secondary focus:ring-2 focus:ring-secondary/20' 
+    : 'border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20';
   const widthClass = fullWidth ? 'w-full' : '';
 
   return (
@@ -42,7 +42,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
             ${widthClass}
             ${icon ? 'pl-10' : ''}
             ${className}
-            focus:outline-none focus:ring-2
+            focus:outline-none
           `}
           {...props}
         />

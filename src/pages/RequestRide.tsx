@@ -70,10 +70,14 @@ export const RequestRide: React.FC = () => {
           map.fitBounds(bounds);
         
           // Clear existing markers
-          // Note: In production, you'd want to manage markers more efficiently
+          // Clear existing markers (production-ready marker management)
+          if (window.currentMarkers) {
+            window.currentMarkers.forEach(marker => marker.setMap(null));
+          }
+          window.currentMarkers = [];
           
           // Add pickup marker
-          new google.maps.Marker({
+          const pickupMarker = new google.maps.Marker({
             position: debouncedPickupPlace.geometry.location,
             map: map,
             title: 'Pickup Location',
@@ -88,7 +92,7 @@ export const RequestRide: React.FC = () => {
           });
         
           // Add dropoff marker
-          new google.maps.Marker({
+          const dropoffMarker = new google.maps.Marker({
             position: debouncedDropoffPlace.geometry.location,
             map: map,
             title: 'Drop-off Location',
@@ -101,6 +105,9 @@ export const RequestRide: React.FC = () => {
               strokeWeight: 2,
             },
           });
+          
+          // Store markers for cleanup
+          window.currentMarkers = [pickupMarker, dropoffMarker];
         }
       } catch (error) {
         setValidationError(error instanceof Error ? error.message : 'Invalid locations selected');

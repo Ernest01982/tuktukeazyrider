@@ -54,16 +54,13 @@ export const useGoogleMaps = (elementId: string, config: MapConfig = {}): UseGoo
         const mapInstance = new google.maps.Map(mapElement, {
           center: defaultConfig.center,
           zoom: defaultConfig.zoom,
-          styles: [
-            {
-              featureType: 'poi',
-              elementType: 'labels',
-              stylers: [{ visibility: 'off' }],
-            },
-          ],
+          styles: APP_CONFIG.map.styles,
           mapTypeControl: false,
           streetViewControl: false,
           fullscreenControl: false,
+          zoomControl: true,
+          scaleControl: true,
+          rotateControl: false,
         });
 
         const geocoderInstance = new google.maps.Geocoder();

@@ -146,7 +146,7 @@ export const History: React.FC = () => {
             {rides.map((ride) => (
               <div
                 key={ride.id}
-                className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-shadow cursor-pointer"
+                className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-100"
                 onClick={() => navigate(`/ride/${ride.id}`)}
               >
                 {/* Header */}

@@ -6,12 +6,13 @@ export default defineConfig({
   plugins: [react()],
   build: {
     // Production optimizations
-    // Use the default esbuild minifier to avoid requiring the optional terser dependency.
-    // The drop option removes console and debugger statements in production builds.
     minify: 'esbuild',
     esbuild: {
       drop: ['console', 'debugger'],
     },
+    target: 'es2015',
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -19,10 +20,10 @@ export default defineConfig({
           maps: ['@googlemaps/js-api-loader'],
           supabase: ['@supabase/supabase-js'],
           stripe: ['@stripe/stripe-js'],
+          ui: ['lucide-react', 'react-hot-toast'],
         },
       },
     },
-    // Enable source maps for production debugging
     sourcemap: true,
   },
   server: {

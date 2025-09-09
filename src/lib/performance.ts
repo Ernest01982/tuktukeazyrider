@@ -1,5 +1,13 @@
 // Performance monitoring and optimization utilities
 
+// Declare global types for marker management
+declare global {
+  interface Window {
+    currentMarkers?: google.maps.Marker[];
+    rideMarkers?: google.maps.Marker[];
+  }
+}
+
 // Performance metrics tracking
 export class PerformanceMonitor {
   private static instance: PerformanceMonitor;

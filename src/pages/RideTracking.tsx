@@ -212,6 +212,12 @@ export const RideTracking: React.FC = () => {
 
     const bounds = new google.maps.LatLngBounds();
     
+    // Clear existing markers
+    if (window.rideMarkers) {
+      window.rideMarkers.forEach(marker => marker.setMap(null));
+    }
+    window.rideMarkers = [];
+    
     // Use lat/lng coordinates directly
     if (ride.pickup_lat && ride.pickup_lng && ride.dropoff_lat && ride.dropoff_lng) {
       const pickup = new google.maps.LatLng(ride.pickup_lat, ride.pickup_lng);
@@ -220,13 +226,8 @@ export const RideTracking: React.FC = () => {
       bounds.extend(pickup);
       bounds.extend(dropoff);
 
-      // Clear existing markers
-      map.data.forEach((feature) => {
-        map.data.remove(feature);
-      });
-
       // Add pickup marker
-      new google.maps.Marker({
+      const pickupMarker = new google.maps.Marker({
         position: pickup,
         map: map,
         title: 'Pickup',
@@ -241,7 +242,7 @@ export const RideTracking: React.FC = () => {
       });
 
       // Add dropoff marker
-      new google.maps.Marker({
+      const dropoffMarker = new google.maps.Marker({
         position: dropoff,
         map: map,
         title: 'Drop-off',
@@ -254,6 +255,8 @@ export const RideTracking: React.FC = () => {
           strokeWeight: 2,
         },
       });
+      
+      window.rideMarkers = [pickupMarker, dropoffMarker];
 
       // Add driver marker if available
       if (driverLocation && driverLocation.location) {
@@ -265,7 +268,7 @@ export const RideTracking: React.FC = () => {
           
           bounds.extend(driverPos);
           
-          new google.maps.Marker({
+          const driverMarker = new google.maps.Marker({
             position: driverPos,
             map: map,
             title: 'Driver',
@@ -278,10 +281,13 @@ export const RideTracking: React.FC = () => {
               strokeWeight: 2,
             },
           });
+          
+          window.rideMarkers.push(driverMarker);
         }
       }
 
-      map.fitBounds(bounds);
+      // Fit bounds with padding
+      map.fitBounds(bounds, { padding: 50 });
     }
   }, [map, ride, driverLocation, isLoaded]);
 

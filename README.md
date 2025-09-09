@@ -1,16 +1,17 @@
 # Tuk Tuk Eazy - Passenger App
 
-A modern, mobile-first ride-sharing application built with React, TypeScript, and Supabase.
+A modern, mobile-first ride-sharing application built with React, TypeScript, and Supabase. Designed specifically for the Indonesian market with Tuk Tuk (auto-rickshaw) transportation.
 
 ## Features
 
 - 🔐 **Secure Authentication** - Email/password auth with role-based access control
 - 🗺️ **Interactive Maps** - Google Maps integration with Places Autocomplete
 - 🚗 **Real-time Tracking** - Live ride updates and driver location tracking
-- 💳 **Secure Payments** - Stripe integration for seamless transactions
+- 💳 **Secure Payments** - Stripe integration with IDR currency support
 - 📱 **Mobile-First Design** - Optimized for mobile devices with large touch targets
 - ⚡ **Real-time Updates** - Supabase Realtime for live ride status updates
 - 🎯 **Production Ready** - Comprehensive error handling, validation, and monitoring
+- 🌏 **Localized** - Designed for Indonesian market with proper currency formatting
 
 ## Tech Stack
 
@@ -20,6 +21,18 @@ A modern, mobile-first ride-sharing application built with React, TypeScript, an
 - **Payments**: Stripe
 - **Build Tool**: Vite
 - **Deployment**: Ready for Vercel, Netlify, or any static hosting
+
+## Live Demo
+
+🚀 **[Try the Live Demo](https://tuktukeazy.netlify.app)**
+
+### Demo Credentials
+- **Email**: demo@tuktukeazy.com
+- **Password**: demo123
+
+> Note: This is a demo environment. Real payments are disabled and rides are simulated.
+
+---
 
 ## Getting Started
 
@@ -56,7 +69,7 @@ A modern, mobile-first ride-sharing application built with React, TypeScript, an
    VITE_STRIPE_PUBLIC_KEY=your_stripe_publishable_key
    ```
 
-4. **Set up Supabase database**
+4. **Set up Supabase database** (Click "Connect to Supabase" in the app)
    
    Run the migration file in your Supabase SQL editor:
    ```sql
@@ -64,13 +77,6 @@ A modern, mobile-first ride-sharing application built with React, TypeScript, an
    ```
 
 5. **Deploy Supabase Edge Functions**
-   ```bash
-   # Install Supabase CLI first
-   npm install -g supabase
-   
-   # Deploy the Stripe function
-   supabase functions deploy stripe
-   ```
 
 6. **Start the development server**
    ```bash
@@ -131,6 +137,8 @@ src/
 - Bundle size optimization
 - Caching strategies
 
+---
+
 ## Environment Variables
 
 | Variable | Description | Required |
@@ -141,6 +149,8 @@ src/
 | `VITE_STRIPE_PUBLIC_KEY` | Stripe publishable key | Yes |
 
 ## Deployment
+
+### Quick Deploy
 
 ### Build for Production
 ```bash
@@ -159,6 +169,8 @@ npm run build
 # Upload dist/ folder to Netlify
 ```
 
+---
+
 ## Database Schema
 
 The app uses the following main tables:
@@ -173,6 +185,8 @@ The app uses the following main tables:
 ### Supabase Edge Functions
 - `POST /functions/v1/stripe` - Create Stripe checkout session
 
+---
+
 ## Contributing
 
 1. Fork the repository
@@ -180,6 +194,8 @@ The app uses the following main tables:
 3. Make your changes
 4. Add tests if applicable
 5. Submit a pull request
+
+---
 
 ## Security
 
@@ -189,6 +205,8 @@ The app uses the following main tables:
 - Content Security Policy headers are implemented
 - Rate limiting is applied to prevent abuse
 
+---
+
 ## Performance
 
 - Bundle size is optimized with code splitting
@@ -197,10 +215,27 @@ The app uses the following main tables:
 - Performance metrics are tracked
 - Lazy loading is implemented for non-critical components
 
+---
+
+## Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+- Mobile browsers (iOS Safari 14+, Chrome Mobile 90+)
+
+---
+
+## Changelog
+
+### v1.0.1 (Latest)
+- 🎨 Enhanced UI/UX with better animations and feedback
+- 🌏 Added Indonesian Rupiah (IDR) currency support
+- 🗺️ Improved map marker management and performance
+- 🔧 Production optimizations and error handling
+- 📱 Better mobile responsiveness
+
 ## License
 
 This project is licensed under the MIT License.
-
-## Support
-
-For support, please contact [your-email@example.com] or create an issue in the repository.

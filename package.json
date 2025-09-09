@@ -11,6 +11,8 @@
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit",
     "preview": "vite preview",
+    "clean": "rm -rf dist node_modules/.vite",
+    "health-check": "curl -f http://localhost:3000 || exit 1",
     "test": "echo 'No tests specified' && exit 0"
   },
   "dependencies": {

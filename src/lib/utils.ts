@@ -1,5 +1,15 @@
 // Format currency values
-export const formatCurrency = (amount: number, currency = 'USD'): string => {
+export const formatCurrency = (amount: number, currency = 'IDR'): string => {
+  // For Indonesian Rupiah, show without decimals
+  if (currency === 'IDR') {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount * 15000); // Convert USD to IDR approximation
+  }
+  
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,

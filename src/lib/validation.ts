@@ -9,7 +9,7 @@ export const validateEmail = (email: string): boolean => {
 
 // Phone validation (basic international format)
 export const validatePhone = (phone: string): boolean => {
-  const phoneRegex = /^\+?[\d\s\-()]{10,}$/;
+  const phoneRegex = /^\+?[\d\s\-()]{10,15}$/;
   return phoneRegex.test(phone);
 };
 
@@ -17,20 +17,12 @@ export const validatePhone = (phone: string): boolean => {
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
-  if (password.length < 8) {
-    errors.push('Password must be at least 8 characters long');
+  if (password.length < 6) {
+    errors.push('Password must be at least 6 characters long');
   }
   
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter');
-  }
-  
-  if (!/[a-z]/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter');
-  }
-  
-  if (!/\d/.test(password)) {
-    errors.push('Password must contain at least one number');
+  if (password.length > 0 && password.length < 6) {
+    errors.push('Password is too short');
   }
 
   return {

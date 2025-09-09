@@ -74,13 +74,27 @@ export const logError = (error: AppError, context?: Record<string, unknown>) => 
     statusCode: error.statusCode,
     stack: error.stack,
     timestamp: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    url: window.location.href,
     context,
   };
 
   // In production, send to error tracking service (e.g., Sentry)
   if (import.meta.env.PROD) {
     console.error('Production Error:', errorInfo);
-    // TODO: Send to error tracking service
+    // Send to error tracking service
+    try {
+      // Example: Sentry.captureException(error, { extra: errorInfo });
+      fetch('/api/errors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(errorInfo),
+      }).catch(() => {
+        // Silently fail if error reporting fails
+      });
+    } catch {
+      // Silently fail if error reporting fails
+    }
   } else {
     console.error('Development Error:', errorInfo);
   }

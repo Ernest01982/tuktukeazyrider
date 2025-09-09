@@ -1,7 +1,7 @@
 // App configuration constants
 export const APP_CONFIG = {
   name: 'Tuk Tuk Eazy',
-  version: '1.0.0',
+  version: '1.0.1',
   description: 'Your reliable ride-sharing companion',
   
   // Ride configuration
@@ -11,14 +11,27 @@ export const APP_CONFIG = {
     maxDistance: 50, // km
     minDistance: 0.1, // km
     cancelTimeLimit: 5, // minutes
+    searchRadius: 10, // km for driver search
   },
   
   // Map configuration
   map: {
-    defaultCenter: { lat: -6.2088, lng: 106.8456 }, // Jakarta
+    defaultCenter: { lat: -6.2088, lng: 106.8456 }, // Jakarta, Indonesia
     defaultZoom: 13,
     maxZoom: 18,
     minZoom: 10,
+    styles: [
+      {
+        featureType: 'poi',
+        elementType: 'labels',
+        stylers: [{ visibility: 'off' }],
+      },
+      {
+        featureType: 'transit',
+        elementType: 'labels.icon',
+        stylers: [{ visibility: 'off' }],
+      },
+    ],
   },
   
   // API configuration
@@ -26,6 +39,7 @@ export const APP_CONFIG = {
     timeout: 30000, // 30 seconds
     retryAttempts: 3,
     retryDelay: 1000, // 1 second
+    maxConcurrentRequests: 5,
   },
   
   // UI configuration
@@ -33,6 +47,7 @@ export const APP_CONFIG = {
     toastDuration: 4000,
     animationDuration: 300,
     debounceDelay: 500,
+    loadingTimeout: 10000, // 10 seconds
   },
 } as const;
 

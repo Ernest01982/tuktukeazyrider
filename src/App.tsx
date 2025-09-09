@@ -78,18 +78,22 @@ function App() {
             fontSize: '14px',
             borderRadius: '12px',
             padding: '12px 16px',
+            maxWidth: '400px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
           },
           success: {
             iconTheme: {
               primary: '#2EC4B6',
               secondary: '#fff',
             },
+            duration: 3000,
           },
           error: {
             iconTheme: {
               primary: '#FF6B6B',
               secondary: '#fff',
             },
+            duration: 5000,
           },
         }}
       />
