@@ -3,7 +3,7 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import type { Database } from '../lib/supabase';
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export interface AuthState {
   user: User | null;
@@ -49,12 +49,21 @@ export const useAuth = (): AuthState => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          id,
+          role,
+          display_name,
+          phone,
+          photo_url,
+          email,
+          created_at,
+          updated_at
+        `)
         .eq('id', userId)
         .single();
 
       if (error) {
-        console.error('Error fetching profile:', error);
+        console.error('Error fetching profile:', error.message);
         setProfile(null);
       } else {
         setProfile(data);

@@ -21,26 +21,28 @@ export type Database = {
       profiles: {
         Row: {
           id: string;
-          email: string;
-          full_name: string | null;
+          role: 'rider' | 'driver' | 'admin';
+          display_name: string | null;
           phone: string | null;
-          role: 'rider' | 'driver';
-          avatar_url: string | null;
+          photo_url: string | null;
+          email: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id: string;
-          email: string;
-          full_name?: string | null;
+          role?: 'rider' | 'driver' | 'admin';
+          display_name?: string | null;
           phone?: string | null;
-          role?: 'rider' | 'driver';
-          avatar_url?: string | null;
+          photo_url?: string | null;
+          email?: string | null;
         };
         Update: {
-          full_name?: string | null;
+          role?: 'rider' | 'driver' | 'admin';
+          display_name?: string | null;
           phone?: string | null;
-          avatar_url?: string | null;
+          photo_url?: string | null;
+          email?: string | null;
         };
       };
       rides: {
@@ -48,45 +50,68 @@ export type Database = {
           id: string;
           rider_id: string;
           driver_id: string | null;
-          pickup_addr: string;
-          dropoff_addr: string;
-          pickup_point: string;
-          dropoff_point: string;
+          pickup_address: string | null;
+          dropoff_address: string | null;
+          pickup_point: string | null;
+          dropoff_point: string | null;
+          pickup_lat: number | null;
+          pickup_lng: number | null;
+          dropoff_lat: number | null;
+          dropoff_lng: number | null;
           status: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
-          estimated_fare: number;
-          actual_fare: number | null;
-          distance_km: number | null;
-          duration_minutes: number | null;
-          requested_at: string;
-          started_at: string | null;
-          completed_at: string | null;
-          cancelled_at: string | null;
+          estimated_fare: number | null;
+          final_fare: number | null;
+          created_at: string;
+          updated_at: string;
         };
         Insert: {
           rider_id: string;
-          pickup_addr: string;
-          dropoff_addr: string;
-          pickup_point: string;
-          dropoff_point: string;
-          estimated_fare: number;
-          distance_km?: number | null;
+          driver_id?: string | null;
+          pickup_address?: string | null;
+          dropoff_address?: string | null;
+          pickup_lat?: number | null;
+          pickup_lng?: number | null;
+          dropoff_lat?: number | null;
+          dropoff_lng?: number | null;
+          status?: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
+          estimated_fare?: number | null;
+          final_fare?: number | null;
         };
         Update: {
+          driver_id?: string | null;
+          pickup_address?: string | null;
+          dropoff_address?: string | null;
+          pickup_lat?: number | null;
+          pickup_lng?: number | null;
+          dropoff_lat?: number | null;
+          dropoff_lng?: number | null;
           status?: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
-          actual_fare?: number | null;
-          started_at?: string | null;
-          completed_at?: string | null;
-          cancelled_at?: string | null;
+          estimated_fare?: number | null;
+          final_fare?: number | null;
+        };
+      };
+      drivers: {
+        Row: {
+          id: string;
+          vehicle_make: string | null;
+          vehicle_model: string | null;
+          vehicle_type: string | null;
+          vehicle_plate: string | null;
+          license_number: string | null;
+          name: string | null;
+          phone: string | null;
+          is_verified: boolean;
+          online: boolean;
+          rating: number;
+          total_rides: number;
+          created_at: string;
+          updated_at: string;
         };
       };
       driver_locations: {
         Row: {
-          id: string;
           driver_id: string;
-          location: string;
-          heading: number | null;
-          speed_kmh: number | null;
-          accuracy_meters: number | null;
+          location: string | null;
           updated_at: string;
         };
       };
@@ -94,37 +119,38 @@ export type Database = {
         Row: {
           id: string;
           ride_id: string;
-          rider_id: string;
           amount: number;
-          currency: string;
-          stripe_session_id: string | null;
+          status: 'PENDING' | 'SUCCEEDED' | 'FAILED';
           stripe_payment_intent_id: string | null;
-          status: 'pending' | 'paid' | 'failed' | 'cancelled';
           created_at: string;
-          paid_at: string | null;
+          updated_at: string;
         };
         Insert: {
           ride_id: string;
-          rider_id: string;
           amount: number;
-          stripe_session_id?: string | null;
-          status?: 'pending' | 'paid' | 'failed' | 'cancelled';
+          status?: 'PENDING' | 'SUCCEEDED' | 'FAILED';
+          stripe_payment_intent_id?: string | null;
+        };
+        Update: {
+          amount?: number;
+          status?: 'PENDING' | 'SUCCEEDED' | 'FAILED';
+          stripe_payment_intent_id?: string | null;
         };
       };
       ratings: {
         Row: {
           id: string;
           ride_id: string;
-          rider_id: string;
-          driver_id: string;
+          from_user_id: string;
+          to_user_id: string;
           score: number;
           note: string | null;
           created_at: string;
         };
         Insert: {
           ride_id: string;
-          rider_id: string;
-          driver_id: string;
+          from_user_id: string;
+          to_user_id: string;
           score: number;
           note?: string | null;
         };

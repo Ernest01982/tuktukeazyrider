@@ -150,8 +150,8 @@ export const RequestRide: React.FC = () => {
       const apiClient = ApiClient.getInstance();
       const { data, error } = await apiClient.createRide({
         rider_id: user.id,
-        pickup_addr: pickupAddr,
-        dropoff_addr: dropoffAddr,
+        pickup_address: pickupAddr,
+        dropoff_address: dropoffAddr,
         pickup_lat: pickupLat,
         pickup_lng: pickupLng,
         dropoff_lat: dropoffLat,

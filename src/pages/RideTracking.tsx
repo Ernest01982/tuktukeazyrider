@@ -14,31 +14,33 @@ interface Ride {
   id: string;
   rider_id: string;
   driver_id: string | null;
-  pickup_addr: string;
-  dropoff_addr: string;
-  pickup_point: string;
-  dropoff_point: string;
+  pickup_address: string;
+  dropoff_address: string;
+  pickup_point: string | null;
+  dropoff_point: string | null;
+  pickup_lat: number | null;
+  pickup_lng: number | null;
+  dropoff_lat: number | null;
+  dropoff_lng: number | null;
   status: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
   estimated_fare: number;
-  actual_fare: number | null;
-  requested_at: string;
-  driver?: {
-    full_name: string;
-    phone: string;
+  final_fare: number | null;
+    display_name: string;
+  updated_at: string;
   };
 }
 
 interface DriverLocation {
   driver_id: string;
-  location: string;
+  location: string | null;
   updated_at: string;
 }
 
 interface Payment {
   id: string;
-  status: 'pending' | 'paid' | 'failed' | 'cancelled';
+  status: 'PENDING' | 'SUCCEEDED' | 'FAILED';
   amount: number;
-  stripe_session_id: string | null;
+  stripe_payment_intent_id: string | null;
 }
 
 export const RideTracking: React.FC = () => {
@@ -68,7 +70,7 @@ export const RideTracking: React.FC = () => {
         .from('rides')
         .select(`
           *,
-          driver:profiles!rides_driver_id_fkey(full_name, phone)
+          driver:profiles!rides_driver_id_fkey(display_name, phone)
         `)
         .eq('id', rideId)
         .eq('rider_id', user.id)
@@ -109,7 +111,7 @@ export const RideTracking: React.FC = () => {
           if (updatedRide.driver_id && !updatedRide.driver) {
             const { data: driver } = await supabase
               .from('profiles')
-              .select('full_name, phone')
+              .select('display_name, phone')
               .eq('id', updatedRide.driver_id)
               .single();
             
@@ -207,19 +209,11 @@ export const RideTracking: React.FC = () => {
 
     const bounds = new google.maps.LatLngBounds();
     
-    // Parse pickup and dropoff points (PostGIS format)
-    const pickupMatch = ride.pickup_point.match(/POINT\(([^ ]+) ([^ )]+)\)/);
-    const dropoffMatch = ride.dropoff_point.match(/POINT\(([^ ]+) ([^ )]+)\)/);
+    // Use lat/lng coordinates directly
+    if (ride.pickup_lat && ride.pickup_lng && ride.dropoff_lat && ride.dropoff_lng) {
+      const pickup = new google.maps.LatLng(ride.pickup_lat, ride.pickup_lng);
+      const dropoff = new google.maps.LatLng(ride.dropoff_lat, ride.dropoff_lng);
     
-    if (pickupMatch && dropoffMatch) {
-      const pickupLng = parseFloat(pickupMatch[1]);
-      const pickupLat = parseFloat(pickupMatch[2]);
-      const dropoffLng = parseFloat(dropoffMatch[1]);
-      const dropoffLat = parseFloat(dropoffMatch[2]);
-      
-      const pickup = new google.maps.LatLng(pickupLat, pickupLng);
-      const dropoff = new google.maps.LatLng(dropoffLat, dropoffLng);
-      
       bounds.extend(pickup);
       bounds.extend(dropoff);
 
@@ -259,7 +253,7 @@ export const RideTracking: React.FC = () => {
       });
 
       // Add driver marker if available
-      if (driverLocation) {
+      if (driverLocation && driverLocation.location) {
         const driverMatch = driverLocation.location.match(/POINT\(([^ ]+) ([^ )]+)\)/);
         if (driverMatch) {
           const driverLng = parseFloat(driverMatch[1]);
@@ -297,7 +291,6 @@ export const RideTracking: React.FC = () => {
         .from('rides')
         .update({ 
           status: 'CANCELLED',
-          cancelled_at: new Date().toISOString(),
         })
         .eq('id', ride.id);
 
@@ -319,7 +312,7 @@ export const RideTracking: React.FC = () => {
     if (!ride) return;
 
     try {
-      const { data } = await supabase.functions.invoke('stripe/create-checkout-session', {
+      const { data } = await supabase.functions.invoke('stripe', {
         body: {
           ride_id: ride.id,
           amount: ride.estimated_fare,
@@ -352,8 +345,8 @@ export const RideTracking: React.FC = () => {
         .from('ratings')
         .insert({
           ride_id: ride.id,
-          rider_id: user.id,
-          driver_id: ride.driver_id,
+          from_user_id: user.id,
+          to_user_id: ride.driver_id,
           score: rating,
           note: ratingNote.trim() || null,
         });
@@ -393,7 +386,7 @@ export const RideTracking: React.FC = () => {
   }
 
   const showPaymentButton = ['ASSIGNED', 'STARTED'].includes(ride.status) && 
-                           (!payment || payment.status !== 'paid');
+                           (!payment || payment.status !== 'SUCCEEDED');
 
   return (
     <div className="min-h-screen bg-surface flex flex-col">
@@ -409,7 +402,7 @@ export const RideTracking: React.FC = () => {
         <div className="text-center">
           <StatusChip status={ride.status} />
           <p className="text-xs text-gray-500 mt-1">
-            {formatRelativeTime(ride.requested_at)}
+            {formatRelativeTime(ride.created_at)}
           </p>
         </div>
         
@@ -435,7 +428,7 @@ export const RideTracking: React.FC = () => {
             <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm text-gray-500">From</p>
-              <p className="text-text font-medium">{ride.pickup_addr}</p>
+              <p className="text-text font-medium">{ride.pickup_address}</p>
             </div>
           </div>
           
@@ -443,7 +436,7 @@ export const RideTracking: React.FC = () => {
             <MapPin className="w-5 h-5 text-secondary mt-1 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm text-gray-500">To</p>
-              <p className="text-text font-medium">{ride.dropoff_addr}</p>
+              <p className="text-text font-medium">{ride.dropoff_address}</p>
             </div>
           </div>
         </div>
@@ -453,7 +446,7 @@ export const RideTracking: React.FC = () => {
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-text">{ride.driver.full_name}</p>
+                <p className="font-semibold text-text">{ride.driver.display_name}</p>
                 <p className="text-sm text-gray-600">Your Driver</p>
               </div>
               <button 
@@ -511,7 +504,7 @@ export const RideTracking: React.FC = () => {
           )}
         </div>
 
-        {payment?.status === 'paid' && (
+        {payment?.status === 'SUCCEEDED' && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <p className="text-green-800 text-sm font-medium">
               ✅ Payment completed
@@ -529,7 +522,7 @@ export const RideTracking: React.FC = () => {
                 Rate Your Experience
               </h3>
               <p className="text-gray-600">
-                How was your ride with {ride.driver?.full_name}?
+                How was your ride with {ride.driver?.display_name}?
               </p>
             </div>
 

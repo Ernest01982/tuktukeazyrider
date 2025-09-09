@@ -49,8 +49,8 @@ export class ApiClient {
   // Rides API
   async createRide(rideData: {
     rider_id: string;
-    pickup_addr: string;
-    dropoff_addr: string;
+    pickup_address: string;
+    dropoff_address: string;
     pickup_lat: number;
     pickup_lng: number;
     dropoff_lat: number;
@@ -63,8 +63,8 @@ export class ApiClient {
           .from('rides')
           .insert({
             rider_id: rideData.rider_id,
-            pickup_address: rideData.pickup_addr,
-            dropoff_address: rideData.dropoff_addr,
+            pickup_address: rideData.pickup_address,
+            dropoff_address: rideData.dropoff_address,
             pickup_lat: rideData.pickup_lat,
             pickup_lng: rideData.pickup_lng,
             dropoff_lat: rideData.dropoff_lat,
@@ -96,7 +96,7 @@ export class ApiClient {
           .from('rides')
           .select(`
             *,
-            driver:profiles!rides_driver_id_fkey(display_name, phone)
+            driver:profiles!rides_driver_id_fkey(id, display_name, phone)
           `)
           .eq('id', rideId)
           .eq('rider_id', userId)
@@ -161,7 +161,7 @@ export class ApiClient {
             updated_at,
             driver_id,
             driver:profiles!rides_driver_id_fkey(display_name),
-            rating:ratings(score, note)
+            ratings:ratings!ratings_ride_id_fkey(score, note)
           `)
           .eq('rider_id', userId)
           .order('created_at', { ascending: false })

@@ -11,21 +11,21 @@ import toast from 'react-hot-toast';
 
 interface RideHistory {
   id: string;
-  pickup_addr: string;
-  dropoff_addr: string;
+  pickup_address: string;
+  dropoff_address: string;
   status: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
   estimated_fare: number;
-  actual_fare: number | null;
-  requested_at: string;
-  completed_at: string | null;
+  final_fare: number | null;
+  created_at: string;
+  updated_at: string;
   driver_id: string | null;
   driver?: {
-    full_name: string;
+    display_name: string;
   };
-  rating?: {
+  ratings?: {
     score: number;
     note: string | null;
-  };
+  }[];
 }
 
 export const History: React.FC = () => {
@@ -45,19 +45,19 @@ export const History: React.FC = () => {
         .from('rides')
         .select(`
           id,
-          pickup_addr,
-          dropoff_addr,
+          pickup_address,
+          dropoff_address,
           status,
           estimated_fare,
-          actual_fare,
-          requested_at,
-          completed_at,
+          final_fare,
+          created_at,
+          updated_at,
           driver_id,
-          driver:profiles!rides_driver_id_fkey(full_name),
-          rating:ratings(score, note)
+          driver:profiles!rides_driver_id_fkey(display_name),
+          ratings:ratings!ratings_ride_id_fkey(score, note)
         `)
         .eq('rider_id', user.id)
-        .order('requested_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(20);
 
       if (error) {
@@ -153,7 +153,7 @@ export const History: React.FC = () => {
                 <div className="flex items-center justify-between mb-3">
                   <StatusChip status={ride.status} size="sm" />
                   <span className="text-sm text-gray-500">
-                    {formatRelativeTime(ride.requested_at)}
+                    {formatRelativeTime(ride.created_at)}
                   </span>
                 </div>
 
@@ -162,14 +162,14 @@ export const History: React.FC = () => {
                   <div className="flex items-start space-x-3">
                     <MapPin className="w-4 h-4 text-primary mt-1 flex-shrink-0" />
                     <p className="text-text text-sm truncate">
-                      {ride.pickup_addr}
+                      {ride.pickup_address}
                     </p>
                   </div>
                   
                   <div className="flex items-start space-x-3">
                     <MapPin className="w-4 h-4 text-secondary mt-1 flex-shrink-0" />
                     <p className="text-text text-sm truncate">
-                      {ride.dropoff_addr}
+                      {ride.dropoff_address}
                     </p>
                   </div>
                 </div>
@@ -179,14 +179,14 @@ export const History: React.FC = () => {
                   <div>
                     {ride.driver && (
                       <p className="text-sm text-gray-600">
-                        Driver: {ride.driver.full_name}
+                        Driver: {ride.driver.display_name}
                       </p>
                     )}
-                    {ride.rating && (
+                    {ride.ratings && ride.ratings.length > 0 && (
                       <div className="flex items-center space-x-1">
                         <Star className="w-4 h-4 fill-accent text-accent" />
                         <span className="text-sm text-gray-600">
-                          {ride.rating.score}/5
+                          {ride.ratings[0].score}/5
                         </span>
                       </div>
                     )}
@@ -194,10 +194,10 @@ export const History: React.FC = () => {
                   
                   <div className="text-right">
                     <p className="font-bold text-text">
-                      {formatCurrency(ride.actual_fare || ride.estimated_fare)}
+                      {formatCurrency(ride.final_fare || ride.estimated_fare)}
                     </p>
                     
-                    {ride.status === 'COMPLETED' && !ride.rating && (
+                    {ride.status === 'COMPLETED' && (!ride.ratings || ride.ratings.length === 0) && (
                       <Button
                         size="sm"
                         variant="accent"
