@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
 interface UseGoogleMapsReturn {
@@ -20,11 +20,14 @@ export const useGoogleMaps = (elementId: string, config: MapConfig = {}): UseGoo
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
 
-  const defaultConfig = {
-    center: { lat: -6.2088, lng: 106.8456 }, // Jakarta, Indonesia (Tuk Tuk country!)
-    zoom: 13,
-    ...config,
-  };
+  const defaultConfig = useMemo(
+    () => ({
+      center: { lat: -6.2088, lng: 106.8456 }, // Jakarta, Indonesia (Tuk Tuk country!)
+      zoom: 13,
+      ...config,
+    }),
+    [config]
+  );
 
   useEffect(() => {
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -73,7 +76,7 @@ export const useGoogleMaps = (elementId: string, config: MapConfig = {}): UseGoo
         console.error('Error loading Google Maps:', error);
         setLoadError('Failed to load Google Maps');
       });
-  }, [elementId, defaultConfig.center.lat, defaultConfig.center.lng, defaultConfig.zoom]);
+  }, [elementId, defaultConfig]);
 
   return { isLoaded, loadError, map, geocoder };
 };

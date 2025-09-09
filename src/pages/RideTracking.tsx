@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Phone, X, CreditCard, Star, MapPin, Clock } from 'lucide-react';
+import { Phone, X, CreditCard, Star, MapPin } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
 import { useGoogleMaps } from '../hooks/useGoogleMaps';
-import { formatCurrency, maskPhone, formatRelativeTime } from '../lib/utils';
+import { formatCurrency, formatRelativeTime } from '../lib/utils';
 import { Button } from '../components/Button';
 import { StatusChip } from '../components/StatusChip';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -16,8 +16,8 @@ interface Ride {
   driver_id: string | null;
   pickup_addr: string;
   dropoff_addr: string;
-  pickup_point: any;
-  dropoff_point: any;
+  pickup_point: string;
+  dropoff_point: string;
   status: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
   estimated_fare: number;
   actual_fare: number | null;
@@ -30,7 +30,7 @@ interface Ride {
 
 interface DriverLocation {
   driver_id: string;
-  location: any;
+  location: string;
   updated_at: string;
 }
 

@@ -50,8 +50,8 @@ export type Database = {
           driver_id: string | null;
           pickup_addr: string;
           dropoff_addr: string;
-          pickup_point: any;
-          dropoff_point: any;
+          pickup_point: string;
+          dropoff_point: string;
           status: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
           estimated_fare: number;
           actual_fare: number | null;
@@ -66,8 +66,8 @@ export type Database = {
           rider_id: string;
           pickup_addr: string;
           dropoff_addr: string;
-          pickup_point: any;
-          dropoff_point: any;
+          pickup_point: string;
+          dropoff_point: string;
           estimated_fare: number;
           distance_km?: number | null;
         };
@@ -83,7 +83,7 @@ export type Database = {
         Row: {
           id: string;
           driver_id: string;
-          location: any;
+          location: string;
           heading: number | null;
           speed_kmh: number | null;
           accuracy_meters: number | null;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, Navigation, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
-import { useGoogleMaps, usePlacesAutocomplete, geocodeAddress } from '../hooks/useGoogleMaps';
+import { useGoogleMaps, usePlacesAutocomplete } from '../hooks/useGoogleMaps';
 import { calculateDistance, calculateFare, formatCurrency } from '../lib/utils';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
@@ -23,8 +23,8 @@ export const RequestRide: React.FC = () => {
     zoom: 13,
   });
   
-  const { place: pickupPlace, setPlace: setPickupPlace } = usePlacesAutocomplete(pickupRef);
-  const { place: dropoffPlace, setPlace: setDropoffPlace } = usePlacesAutocomplete(dropoffRef);
+  const { place: pickupPlace } = usePlacesAutocomplete(pickupRef);
+  const { place: dropoffPlace } = usePlacesAutocomplete(dropoffRef);
 
   // Calculate fare when both places are selected
   useEffect(() => {
