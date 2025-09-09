@@ -25,9 +25,12 @@ interface Ride {
   status: 'REQUESTED' | 'ASSIGNED' | 'ENROUTE' | 'STARTED' | 'COMPLETED' | 'CANCELLED';
   estimated_fare: number;
   final_fare: number | null;
+  driver?: {
     display_name: string;
-  updated_at: string;
+    phone: string;
   };
+  created_at: string;
+  updated_at: string;
 }
 
 interface DriverLocation {
