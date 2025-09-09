@@ -9,6 +9,7 @@ import { WrongApp } from './pages/WrongApp';
 import { RequestRide } from './pages/RequestRide';
 import { RideTracking } from './pages/RideTracking';
 import { History } from './pages/History';
+import { Landing } from './pages/Landing';
 import { validateEnvVars } from './lib/utils';
 import { APP_CONFIG } from './lib/constants';
 
@@ -59,11 +60,11 @@ function App() {
             </ProtectedRoute>
           } />
           
-          {/* Default redirect */}
-          <Route path="/" element={<Navigate to="/request" replace />} />
-          
+          {/* Landing page */}
+          <Route path="/" element={<Landing />} />
+
           {/* 404 fallback */}
-          <Route path="*" element={<Navigate to="/request" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
       
