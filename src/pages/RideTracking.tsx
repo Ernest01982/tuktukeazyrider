@@ -73,7 +73,7 @@ export const RideTracking: React.FC = () => {
         .from('rides')
         .select(`
           *,
-          driver:profiles!rides_driver_id_fkey(display_name, phone)
+          driver:profiles!rides_driver_id_fkey(full_name, phone)
         `)
         .eq('id', rideId)
         .eq('rider_id', user.id)
@@ -114,7 +114,7 @@ export const RideTracking: React.FC = () => {
           if (updatedRide.driver_id && !updatedRide.driver) {
             const { data: driver } = await supabase
               .from('profiles')
-              .select('display_name, phone')
+              .select('full_name, phone')
               .eq('id', updatedRide.driver_id)
               .single();
             
@@ -449,7 +449,7 @@ export const RideTracking: React.FC = () => {
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-text">{ride.driver.display_name}</p>
+                <p className="font-semibold text-text">{ride.driver.full_name}</p>
                 <p className="text-sm text-gray-600">Your Driver</p>
               </div>
               <button 
@@ -525,7 +525,7 @@ export const RideTracking: React.FC = () => {
                 Rate Your Experience
               </h3>
               <p className="text-gray-600">
-                How was your ride with {ride.driver?.display_name}?
+                How was your ride with {ride.driver?.full_name}?
               </p>
             </div>
 

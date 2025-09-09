@@ -13,7 +13,7 @@ export const Login: React.FC = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    displayName: '',
+    fullName: '',
     phone: '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -70,10 +70,10 @@ export const Login: React.FC = () => {
 
     // Sign-up specific validations
     if (isSignUp) {
-      if (!formData.displayName.trim()) {
-        newErrors.displayName = 'Display name is required';
-      } else if (formData.displayName.trim().length < 2) {
-        newErrors.displayName = 'Display name must be at least 2 characters';
+      if (!formData.fullName.trim()) {
+        newErrors.fullName = 'Full name is required';
+      } else if (formData.fullName.trim().length < 2) {
+        newErrors.fullName = 'Full name must be at least 2 characters';
       }
 
       if (formData.phone && !validatePhone(formData.phone)) {
@@ -102,7 +102,7 @@ export const Login: React.FC = () => {
           password: formData.password,
           options: {
             data: {
-              display_name: formData.displayName.trim(),
+              full_name: formData.fullName.trim(),
               phone: formData.phone.trim() || null,
               role: 'rider', // ensure rider role is set in auth metadata
             }
@@ -121,7 +121,7 @@ export const Login: React.FC = () => {
             .insert({
               id: data.user.id,
               email: formData.email,
-              display_name: formData.displayName.trim(),
+              full_name: formData.fullName.trim(),
               phone: formData.phone.trim() || null,
               role: 'rider', // Default role for passenger app
             });
@@ -136,7 +136,7 @@ export const Login: React.FC = () => {
             setFormData({
               email: formData.email,
               password: '',
-              displayName: '',
+              fullName: '',
               phone: '',
             });
           }
@@ -193,14 +193,14 @@ export const Login: React.FC = () => {
             {isSignUp && (
               <Input
                 type="text"
-                name="displayName"
+                name="fullName"
                 label="Full Name"
-                value={formData.displayName}
+                value={formData.fullName}
                 onChange={handleInputChange}
                 required
                 icon={<User className="w-5 h-5" />}
                 placeholder="Your full name"
-                error={errors.displayName}
+                error={errors.fullName}
               />
             )}
 
@@ -264,7 +264,7 @@ export const Login: React.FC = () => {
                 setFormData({
                   email: formData.email,
                   password: '',
-                  displayName: '',
+                 fullName: '',
                   phone: '',
                 });
               }}

@@ -22,7 +22,7 @@ export type Database = {
         Row: {
           id: string;
           role: 'rider' | 'driver' | 'admin';
-          display_name: string | null;
+          full_name: string | null;
           phone: string | null;
           photo_url: string | null;
           email: string | null;
@@ -32,14 +32,14 @@ export type Database = {
         Insert: {
           id: string;
           role?: 'rider' | 'driver' | 'admin';
-          display_name?: string | null;
+          full_name?: string | null;
           phone?: string | null;
           photo_url?: string | null;
           email?: string | null;
         };
         Update: {
           role?: 'rider' | 'driver' | 'admin';
-          display_name?: string | null;
+          full_name?: string | null;
           phone?: string | null;
           photo_url?: string | null;
           email?: string | null;
