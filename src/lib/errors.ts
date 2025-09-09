@@ -67,7 +67,7 @@ export const handleError = (error: unknown): AppError => {
 };
 
 // Error logging utility
-export const logError = (error: AppError, context?: Record<string, any>) => {
+export const logError = (error: AppError, context?: Record<string, unknown>) => {
   const errorInfo = {
     message: error.message,
     code: error.code,
