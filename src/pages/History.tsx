@@ -18,6 +18,7 @@ interface RideHistory {
   actual_fare: number | null;
   requested_at: string;
   completed_at: string | null;
+  driver_id: string | null;
   driver?: {
     full_name: string;
   };
@@ -51,6 +52,7 @@ export const History: React.FC = () => {
           actual_fare,
           requested_at,
           completed_at,
+          driver_id,
           driver:profiles!rides_driver_id_fkey(full_name),
           rating:ratings(score, note)
         `)
@@ -275,10 +277,10 @@ export const History: React.FC = () => {
                 fullWidth
                 onClick={() => {
                   const ride = rides.find(r => r.id === showRatingModal);
-                  if (ride?.driver) {
-                    // Get driver ID from the ride - we'll need to fetch it
-                    // For now, we'll just show a message
-                    toast.error('Rating feature requires driver ID');
+                  if (ride?.driver_id) {
+                    submitRating(ride.id, ride.driver_id);
+                  } else {
+                    toast.error('Rating feature requires driver information');
                   }
                 }}
               >
