@@ -29,8 +29,8 @@ export const RequestRide: React.FC = () => {
     zoom: APP_CONFIG.map.defaultZoom,
   });
   
-  const { place: pickupPlace } = usePlacesAutocomplete(pickupRef);
-  const { place: dropoffPlace } = usePlacesAutocomplete(dropoffRef);
+  const { place: pickupPlace } = usePlacesAutocomplete(pickupRef, isLoaded);
+  const { place: dropoffPlace } = usePlacesAutocomplete(dropoffRef, isLoaded);
   
   // Debounce place changes to avoid excessive calculations
   const debouncedPickupPlace = useDebounce(pickupPlace, APP_CONFIG.ui.debounceDelay);

@@ -82,25 +82,38 @@ export const useGoogleMaps = (elementId: string, config: MapConfig = {}): UseGoo
 };
 
 // Hook for Places Autocomplete
-export const usePlacesAutocomplete = (inputRef: React.RefObject<HTMLInputElement>) => {
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+export const usePlacesAutocomplete = (
+  inputRef: React.RefObject<HTMLInputElement>,
+  isLoaded = false
+) => {
+  const [autocomplete, setAutocomplete] =
+    useState<google.maps.places.Autocomplete | null>(null);
   const [place, setPlace] = useState<google.maps.places.PlaceResult | null>(null);
 
   useEffect(() => {
-    if (inputRef.current && window.google) {
-      const autocompleteInstance = new google.maps.places.Autocomplete(inputRef.current, {
+    if (
+      !isLoaded ||
+      !inputRef.current ||
+      !window.google?.maps?.places?.Autocomplete
+    ) {
+      return;
+    }
+
+    const autocompleteInstance = new window.google.maps.places.Autocomplete(
+      inputRef.current,
+      {
         types: ['address'],
         componentRestrictions: { country: 'id' }, // Indonesia
-      });
+      }
+    );
 
-      autocompleteInstance.addListener('place_changed', () => {
-        const selectedPlace = autocompleteInstance.getPlace();
-        setPlace(selectedPlace);
-      });
+    autocompleteInstance.addListener('place_changed', () => {
+      const selectedPlace = autocompleteInstance.getPlace();
+      setPlace(selectedPlace);
+    });
 
-      setAutocomplete(autocompleteInstance);
-    }
-  }, [inputRef]);
+    setAutocomplete(autocompleteInstance);
+  }, [inputRef, isLoaded]);
 
   return { autocomplete, place, setPlace };
 };
