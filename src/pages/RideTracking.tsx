@@ -26,7 +26,7 @@ interface Ride {
   estimated_fare: number;
   final_fare: number | null;
   driver?: {
-    display_name: string;
+    full_name: string;
     phone: string;
   };
   created_at: string;
