@@ -20,7 +20,7 @@ interface RideHistory {
   updated_at: string;
   driver_id: string | null;
   driver?: {
-    display_name: string;
+    full_name: string;
   };
   ratings?: {
     score: number;
@@ -53,7 +53,7 @@ export const History: React.FC = () => {
           created_at,
           updated_at,
           driver_id,
-          driver:profiles!rides_driver_id_fkey(display_name),
+          driver:profiles!rides_driver_id_fkey(full_name),
           ratings:ratings!ratings_ride_id_fkey(score, note)
         `)
         .eq('rider_id', user.id)
@@ -179,7 +179,7 @@ export const History: React.FC = () => {
                   <div>
                     {ride.driver && (
                       <p className="text-sm text-gray-600">
-                        Driver: {ride.driver.display_name}
+                        Driver: {ride.driver.full_name}
                       </p>
                     )}
                     {ride.ratings && ride.ratings.length > 0 && (

@@ -96,7 +96,7 @@ export class ApiClient {
           .from('rides')
           .select(`
             *,
-            driver:profiles!rides_driver_id_fkey(id, display_name, phone)
+            driver:profiles!rides_driver_id_fkey(id, full_name, phone)
           `)
           .eq('id', rideId)
           .eq('rider_id', userId)
@@ -160,7 +160,7 @@ export class ApiClient {
             created_at,
             updated_at,
             driver_id,
-            driver:profiles!rides_driver_id_fkey(display_name),
+            driver:profiles!rides_driver_id_fkey(full_name),
             ratings:ratings!ratings_ride_id_fkey(score, note)
           `)
           .eq('rider_id', userId)
