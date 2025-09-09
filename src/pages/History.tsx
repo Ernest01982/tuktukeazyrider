@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, MapPin, Star, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -37,40 +37,40 @@ export const History: React.FC = () => {
   const [rating, setRating] = useState(5);
   const [ratingNote, setRatingNote] = useState('');
 
-  useEffect(() => {
+  const fetchHistory = useCallback(async () => {
     if (!user) return;
 
-    const fetchHistory = async () => {
-      const { data, error } = await supabase
-        .from('rides')
-        .select(`
-          id,
-          pickup_address,
-          dropoff_address,
-          status,
-          estimated_fare,
-          final_fare,
-          created_at,
-          updated_at,
-          driver_id,
-          driver:profiles!rides_driver_id_fkey(full_name),
-          ratings:ratings!ratings_ride_id_fkey(score, note)
-        `)
-        .eq('rider_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(20);
+    const { data, error } = await supabase
+      .from('rides')
+      .select(`
+        id,
+        pickup_address,
+        dropoff_address,
+        status,
+        estimated_fare,
+        final_fare,
+        created_at,
+        updated_at,
+        driver_id,
+        driver:profiles!rides_driver_id_fkey(full_name),
+        ratings:ratings!ratings_ride_id_fkey(score, note)
+      `)
+      .eq('rider_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20);
 
-      if (error) {
-        console.error('Error fetching history:', error);
-        toast.error('Failed to load ride history');
-      } else {
-        setRides(data || []);
-      }
-      setLoading(false);
-    };
-
-    fetchHistory();
+    if (error) {
+      console.error('Error fetching history:', error);
+      toast.error('Failed to load ride history');
+    } else {
+      setRides(data || []);
+    }
   }, [user]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchHistory().finally(() => setLoading(false));
+  }, [fetchHistory]);
 
   const submitRating = async (rideId: string, driverId: string) => {
     if (!user) return;
@@ -80,8 +80,8 @@ export const History: React.FC = () => {
         .from('ratings')
         .insert({
           ride_id: rideId,
-          rider_id: user.id,
-          driver_id: driverId,
+          from_user_id: user.id,
+          to_user_id: driverId,
           score: rating,
           note: ratingNote.trim() || null,
         });
@@ -95,7 +95,7 @@ export const History: React.FC = () => {
         setRatingNote('');
         
         // Refresh the list to show the new rating
-        window.location.reload();
+        await fetchHistory();
       }
     } catch (error) {
       console.error('Error submitting rating:', error);
