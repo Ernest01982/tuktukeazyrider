@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
+import { APP_CONFIG } from '../lib/constants';
 
 interface UseGoogleMapsReturn {
   isLoaded: boolean;
