@@ -142,14 +142,3 @@ export const getMemoryUsage = (): MemoryInfo | null => {
   }
   return null;
 };
-
-// Bundle size analyzer (development only)
-export const analyzeBundleSize = (): void => {
-  if (import.meta.env.DEV) {
-    import('webpack-bundle-analyzer').then(({ BundleAnalyzerPlugin }) => {
-      console.log('Bundle analyzer available in development');
-    }).catch(() => {
-      console.log('Bundle analyzer not available');
-    });
-  }
-};
