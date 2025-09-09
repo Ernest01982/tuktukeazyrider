@@ -103,4 +103,20 @@ export const validateEnvVars = (): void => {
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
+
+  // Validate URL format
+  try {
+    new URL(import.meta.env.VITE_SUPABASE_URL);
+  } catch {
+    throw new Error('VITE_SUPABASE_URL must be a valid URL');
+  }
+
+  // Validate API key format (basic check)
+  if (import.meta.env.VITE_SUPABASE_ANON_KEY.length < 100) {
+    throw new Error('VITE_SUPABASE_ANON_KEY appears to be invalid');
+  }
+
+  if (import.meta.env.VITE_GOOGLE_MAPS_API_KEY.length < 30) {
+    throw new Error('VITE_GOOGLE_MAPS_API_KEY appears to be invalid');
+  }
 };

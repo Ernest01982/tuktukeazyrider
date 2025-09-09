@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "vite build --mode analyze",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "type-check": "tsc --noEmit",
     "preview": "vite preview"
+    "test": "echo 'No tests specified' && exit 0"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.10",
