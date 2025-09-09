@@ -14,6 +14,7 @@ export const Login: React.FC = () => {
     password: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   if (loading) {
     return (
@@ -42,21 +43,53 @@ export const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      if (isSignUp) {
+        // Sign up new user
+        const { data, error } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+        });
 
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
 
-      if (data.user) {
-        toast.success('Successfully logged in!');
+        if (data.user) {
+          // Create profile for new user
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              email: formData.email,
+              role: 'rider',
+            });
+
+          if (profileError) {
+            console.error('Error creating profile:', profileError);
+            toast.error('Account created but profile setup failed');
+          } else {
+            toast.success('Account created successfully!');
+          }
+        }
+      } else {
+        // Sign in existing user
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+
+        if (error) {
+          toast.error(error.message);
+          return;
+        }
+
+        if (data.user) {
+          toast.success('Successfully logged in!');
+        }
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Auth error:', error);
       toast.error('An unexpected error occurred');
     } finally {
       setIsLoading(false);
@@ -78,7 +111,7 @@ export const Login: React.FC = () => {
             <p className="text-gray-600">Passenger App</p>
           </div>
 
-          {/* Login Form */}
+          {/* Auth Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
               type="email"
@@ -108,17 +141,18 @@ export const Login: React.FC = () => {
               loading={isLoading}
               size="lg"
             >
-              Sign In
+              {isSignUp ? 'Create Account' : 'Sign In'}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            New to Tuk Tuk Eazy?{' '}
-            <button 
+            {isSignUp ? 'Already have an account?' : 'New to Tuk Tuk Eazy?'}{' '}
+            <button
+              type="button"
               className="text-primary font-medium hover:underline"
-              onClick={() => toast.error('Sign up not available in demo')}
+              onClick={() => setIsSignUp(!isSignUp)}
             >
-              Create Account
+              {isSignUp ? 'Sign In' : 'Create Account'}
             </button>
           </div>
         </div>
