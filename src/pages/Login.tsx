@@ -104,6 +104,7 @@ export const Login: React.FC = () => {
             data: {
               display_name: formData.displayName.trim(),
               phone: formData.phone.trim() || null,
+              role: 'rider', // ensure rider role is set in auth metadata
             }
           }
         });
