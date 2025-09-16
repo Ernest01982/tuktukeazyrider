@@ -132,7 +132,6 @@ export const Login: React.FC = () => {
             toast.success('Account created successfully!');
           }
         }
-      }
       } else {
         // Sign in existing user
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -256,7 +255,7 @@ export const Login: React.FC = () => {
                 setFormData({
                   email: formData.email,
                   password: '',
-                 fullName: '',
+                  fullName: '',
                   phone: '',
                 });
               }}
