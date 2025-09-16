@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Navigation, ArrowRight, User, History } from 'lucide-react';
+import { MapPin, Navigation, ArrowRight, User, History, Database } from 'lucide-react';
 import { ApiClient } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useDebounce } from '../hooks/useDebounce';
@@ -11,6 +11,7 @@ import { PerformanceMonitor } from '../lib/performance';
 import { ERROR_MESSAGES, SUCCESS_MESSAGES, APP_CONFIG } from '../lib/constants';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
+import { DatabaseStatus } from '../components/DatabaseStatus';
 import toast from 'react-hot-toast';
 
 export const RequestRide: React.FC = () => {
@@ -20,6 +21,7 @@ export const RequestRide: React.FC = () => {
   const [fare, setFare] = useState<number | null>(null);
   const [distance, setDistance] = useState<number | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showDatabaseStatus, setShowDatabaseStatus] = useState(false);
 
   const pickupRef = useRef<HTMLInputElement>(null);
   const dropoffRef = useRef<HTMLInputElement>(null);
@@ -221,9 +223,25 @@ export const RequestRide: React.FC = () => {
           >
             <User className="w-6 h-6 text-gray-600" />
           </button>
+          
+          {import.meta.env.DEV && (
+            <button 
+              onClick={() => setShowDatabaseStatus(!showDatabaseStatus)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Database Status"
+            >
+              <Database className="w-6 h-6 text-gray-600" />
+            </button>
+          )}
         </div>
       </div>
 
+      {/* Database Status (Development Only) */}
+      {import.meta.env.DEV && showDatabaseStatus && (
+        <div className="p-4">
+          <DatabaseStatus showDetails={true} autoRefresh={true} />
+        </div>
+      )}
       {/* Map */}
       <div className="flex-1 relative">
         <div id="map" className="w-full h-full min-h-[300px] bg-gray-200">

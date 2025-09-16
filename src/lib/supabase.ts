@@ -7,14 +7,78 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+// Validate Supabase configuration
+const validateSupabaseConfig = () => {
+  if (!supabaseUrl.startsWith('https://')) {
+    throw new Error('VITE_SUPABASE_URL must be a valid HTTPS URL');
+  }
+  
+  if (supabaseKey.length < 100) {
+    throw new Error('VITE_SUPABASE_ANON_KEY appears to be invalid (too short)');
+  }
+  
+  // Extract project reference from URL
+  const projectRef = supabaseUrl.match(/https:\/\/([^.]+)\.supabase\.co/)?.[1];
+  if (!projectRef) {
+    throw new Error('Invalid Supabase URL format');
+  }
+  
+  console.log(`✅ Supabase configured for project: ${projectRef}`);
+};
+
+// Validate configuration on initialization
+validateSupabaseConfig();
 export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
   realtime: {
     params: {
       eventsPerSecond: 10,
     },
   },
+  global: {
+    headers: {
+      'X-Client-Info': 'tuk-tuk-eazy-passenger@1.0.1',
+    },
+  },
 });
 
+// Connection health check function
+export const testSupabaseConnection = async (): Promise<{
+  success: boolean;
+  error?: string;
+  latency?: number;
+}> => {
+  const startTime = performance.now();
+  
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('count')
+      .limit(1);
+    
+    const endTime = performance.now();
+    const latency = endTime - startTime;
+    
+    if (error) {
+      return { success: false, error: error.message, latency };
+    }
+    
+    return { success: true, latency };
+  } catch (error) {
+    const endTime = performance.now();
+    const latency = endTime - startTime;
+    
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown connection error',
+      latency,
+    };
+  }
+};
 export type Database = {
   public: {
     Tables: {

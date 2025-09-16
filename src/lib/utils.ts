@@ -91,15 +91,23 @@ export const validateEnvVars = (): void => {
   const required = [
     'VITE_SUPABASE_URL',
     'VITE_SUPABASE_ANON_KEY',
+  ];
+  
+  const optional = [
     'VITE_GOOGLE_MAPS_API_KEY',
+    'VITE_STRIPE_PUBLIC_KEY',
   ];
   
   const missing = required.filter(key => !import.meta.env[key]);
+  const missingOptional = optional.filter(key => !import.meta.env[key]);
   
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
+  if (missingOptional.length > 0) {
+    console.warn(`Missing optional environment variables: ${missingOptional.join(', ')}`);
+  }
   // Validate URL format
   try {
     new URL(import.meta.env.VITE_SUPABASE_URL);
@@ -112,7 +120,9 @@ export const validateEnvVars = (): void => {
     throw new Error('VITE_SUPABASE_ANON_KEY appears to be invalid');
   }
 
-  if (import.meta.env.VITE_GOOGLE_MAPS_API_KEY.length < 30) {
+  if (import.meta.env.VITE_GOOGLE_MAPS_API_KEY && import.meta.env.VITE_GOOGLE_MAPS_API_KEY.length < 30) {
     throw new Error('VITE_GOOGLE_MAPS_API_KEY appears to be invalid');
   }
+  
+  console.log('✅ Environment variables validated successfully');
 };
