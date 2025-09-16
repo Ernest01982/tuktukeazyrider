@@ -103,6 +103,11 @@ export const Login: React.FC = () => {
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
+          options: {
+            data: {
+              full_name: formData.fullName.trim(),
+            }
+          }
         });
 
         if (error) {
@@ -112,41 +117,17 @@ export const Login: React.FC = () => {
         }
 
         if (data.user) {
-          // Wait a moment for the user to be fully created
-          setTimeout(async () => {
-            try {
-              // Create profile for new user with all required fields
-              const { error: profileError } = await supabase
-                .from('profiles')
-                .insert({
-                  id: data.user.id,
-                  email: formData.email,
-                  full_name: formData.fullName.trim(),
-                  phone: formData.phone.trim() || null,
-                  role: 'rider', // Default role for passenger app
-                });
-
-              if (profileError) {
-                console.error('Error creating profile:', profileError);
-                toast.error('Account created but profile setup failed. Please try signing in.');
-              } else {
-                toast.success('Account created successfully! You can now sign in.');
-              }
-              
-              // Switch to sign-in mode after successful registration
-              setIsSignUp(false);
-              setFormData({
-                email: formData.email,
-                password: '',
-                fullName: '',
-                phone: '',
-              });
-            } catch (profileError) {
-              console.error('Profile creation error:', profileError);
-              toast.error('Account created but profile setup failed. Please try signing in.');
-              setIsSignUp(false);
-            }
-          }, 1000);
+          // Profile is created automatically by database trigger
+          toast.success('Account created successfully! You can now sign in.');
+          
+          // Switch to sign-in mode after successful registration
+          setIsSignUp(false);
+          setFormData({
+            email: formData.email,
+            password: '',
+            fullName: '',
+            phone: '',
+          });
         }
       } else {
         // Sign in existing user
