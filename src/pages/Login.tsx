@@ -103,57 +103,50 @@ export const Login: React.FC = () => {
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
-          options: {
-            data: {
-              full_name: formData.fullName.trim(),
-              phone: formData.phone.trim() || null,
-              role: 'rider', // ensure rider role is set in auth metadata
-            }
-          }
         });
 
         if (error) {
           console.error('Sign up error:', error);
-          const isDatabaseFailure =
-            error?.status === 500 ||
-            error.message?.toLowerCase().includes('database error saving new user');
-
-          if (isDatabaseFailure) {
-            toast.error(
-              'Sign up failed because the Supabase database rejected the request. Please run the database migration (supabase/migrations/create_schema.sql) in your project and try again.'
-            );
-          } else {
-            toast.error(error.message);
-          }
+          toast.error(error.message || 'Failed to create account');
           return;
         }
 
         if (data.user) {
-          // Create profile for new user with all required fields
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              id: data.user.id,
-              email: formData.email,
-              full_name: formData.fullName.trim(),
-              phone: formData.phone.trim() || null,
-              role: 'rider', // Default role for passenger app
-            });
+          // Wait a moment for the user to be fully created
+          setTimeout(async () => {
+            try {
+              // Create profile for new user with all required fields
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: data.user.id,
+                  email: formData.email,
+                  full_name: formData.fullName.trim(),
+                  phone: formData.phone.trim() || null,
+                  role: 'rider', // Default role for passenger app
+                });
 
-          if (profileError) {
-            console.error('Error creating profile:', profileError);
-            toast.error('Account created but profile setup failed. Please contact support.');
-          } else {
-            toast.success('Account created successfully! Please check your email to verify your account.');
-            // Switch to sign-in mode after successful registration
-            setIsSignUp(false);
-            setFormData({
-              email: formData.email,
-              password: '',
-              fullName: '',
-              phone: '',
-            });
-          }
+              if (profileError) {
+                console.error('Error creating profile:', profileError);
+                toast.error('Account created but profile setup failed. Please try signing in.');
+              } else {
+                toast.success('Account created successfully! You can now sign in.');
+              }
+              
+              // Switch to sign-in mode after successful registration
+              setIsSignUp(false);
+              setFormData({
+                email: formData.email,
+                password: '',
+                fullName: '',
+                phone: '',
+              });
+            } catch (profileError) {
+              console.error('Profile creation error:', profileError);
+              toast.error('Account created but profile setup failed. Please try signing in.');
+              setIsSignUp(false);
+            }
+          }, 1000);
         }
       } else {
         // Sign in existing user
