@@ -103,37 +103,46 @@ export const Login: React.FC = () => {
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
+          options: {
+            emailRedirectTo: undefined,
+            data: {}
+          }
         });
 
         if (error) {
           console.error('Sign up error:', error);
-          toast.error(error.message || 'Failed to create account');
-          return;
-        }
-
-        if (data.user) {
-          // Manually create profile after successful auth signup
-          try {
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .insert({
-                id: data.user.id,
-                full_name: formData.fullName.trim(),
-                email: formData.email,
-                phone: formData.phone || null,
-                role: 'rider'
-              });
-
-            if (profileError) {
-              console.error('Profile creation error:', profileError);
-              // Don't fail the signup if profile creation fails
-              // User can still sign in and profile will be created on first login
-            }
-          } catch (profileError) {
-            console.error('Profile creation failed:', profileError);
+          if (error.message.includes('Database error saving new user')) {
+            toast.error('Account creation failed. Please check that the database is properly configured.');
+          } else {
+            toast.error(error.message || 'Failed to create account');
           }
+          return;
+          // Check if user needs email confirmation
+          if (!data.session) {
+            toast.success('Please check your email to confirm your account before signing in.');
+          } else {
+            // User is automatically signed in, create profile
+            try {
+              const { error: profileError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: data.user.id,
+                  full_name: formData.fullName.trim(),
+                  email: formData.email,
+                  phone: formData.phone || null,
+                  role: 'rider'
+                });
 
-          toast.success('Account created successfully! You can now sign in.');
+              if (profileError) {
+                console.error('Profile creation error:', profileError);
+              }
+            } catch (profileError) {
+              console.error('Profile creation failed:', profileError);
+            }
+            
+            toast.success('Account created successfully!');
+            return; // User is signed in, don't switch to sign-in mode
+          }
           
           // Switch to sign-in mode after successful registration
           setIsSignUp(false);
