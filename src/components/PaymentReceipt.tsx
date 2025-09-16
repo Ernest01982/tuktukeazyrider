@@ -1,6 +1,6 @@
 import React from 'react';
 import { Download, Mail, X } from 'lucide-react';
-import { formatCurrency, formatRelativeTime } from '../lib/utils';
+import { formatCurrency } from '../lib/utils';
 import { Button } from './Button';
 
 interface PaymentReceiptProps {
@@ -22,6 +22,9 @@ interface PaymentReceiptProps {
   };
   onClose: () => void;
 }
+
+type ReceiptRide = PaymentReceiptProps['ride'];
+type ReceiptPayment = PaymentReceiptProps['payment'];
 
 export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
   ride,
@@ -160,7 +163,7 @@ export const PaymentReceipt: React.FC<PaymentReceiptProps> = ({
   );
 };
 
-const generateReceiptHTML = (ride: any, payment: any): string => {
+const generateReceiptHTML = (ride: ReceiptRide, payment: ReceiptPayment): string => {
   return `
 <!DOCTYPE html>
 <html>

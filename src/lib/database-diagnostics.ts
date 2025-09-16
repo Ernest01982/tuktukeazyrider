@@ -1,6 +1,5 @@
 // Database connectivity diagnostics and health checks
 import { supabase } from './supabase';
-import { logError, AppError } from './errors';
 
 export interface DatabaseHealthCheck {
   isConnected: boolean;
@@ -71,7 +70,7 @@ export class DatabaseDiagnostics {
   // Test basic connectivity to Supabase
   private async testConnectivity(): Promise<{ success: boolean; error?: string }> {
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('profiles')
         .select('count')
         .limit(1);

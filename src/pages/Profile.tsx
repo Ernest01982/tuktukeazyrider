@@ -12,7 +12,6 @@ import toast from 'react-hot-toast';
 export const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',

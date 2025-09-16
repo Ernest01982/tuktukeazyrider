@@ -184,10 +184,6 @@ export const RideTracking: React.FC = () => {
       }
     };
 
-    const handleViewReceipt = () => {
-      setShowReceipt(true);
-    };
-
     fetchPayment();
 
     // Subscribe to payment updates
@@ -321,6 +317,10 @@ export const RideTracking: React.FC = () => {
     } finally {
       setCancelling(false);
     }
+  };
+
+  const handleViewReceipt = () => {
+    setShowReceipt(true);
   };
 
   const handlePayment = async () => {
