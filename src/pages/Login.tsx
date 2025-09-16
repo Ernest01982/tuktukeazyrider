@@ -99,60 +99,40 @@ export const Login: React.FC = () => {
 
     try {
       if (isSignUp) {
-        // Sign up new user without metadata to avoid database trigger issues
+        // Sign up new user with metadata for automatic profile creation
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
-            emailRedirectTo: undefined,
-            data: {}
+            data: {
+              full_name: formData.fullName.trim(),
+              phone: formData.phone || null
+            }
           }
         });
 
         if (error) {
           console.error('Sign up error:', error);
-          if (error.message.includes('Database error saving new user')) {
-            toast.error('Account creation failed. Please check that the database is properly configured.');
-          } else {
-            toast.error(error.message || 'Failed to create account');
-          }
+          toast.error(error.message || 'Failed to create account');
           return;
+        }
+
+        if (data.user) {
           // Check if user needs email confirmation
           if (!data.session) {
             toast.success('Please check your email to confirm your account before signing in.');
+            setIsSignUp(false);
+            setFormData({
+              email: formData.email,
+              password: '',
+              fullName: '',
+              phone: '',
+            });
           } else {
-            // User is automatically signed in, create profile
-            try {
-              const { error: profileError } = await supabase
-                .from('profiles')
-                .insert({
-                  id: data.user.id,
-                  full_name: formData.fullName.trim(),
-                  email: formData.email,
-                  phone: formData.phone || null,
-                  role: 'rider'
-                });
-
-              if (profileError) {
-                console.error('Profile creation error:', profileError);
-              }
-            } catch (profileError) {
-              console.error('Profile creation failed:', profileError);
-            }
-            
             toast.success('Account created successfully!');
-            return; // User is signed in, don't switch to sign-in mode
           }
-          
-          // Switch to sign-in mode after successful registration
-          setIsSignUp(false);
-          setFormData({
-            email: formData.email,
-            password: '',
-            fullName: '',
-            phone: '',
-          });
         }
+      }
       } else {
         // Sign in existing user
         const { data, error } = await supabase.auth.signInWithPassword({
