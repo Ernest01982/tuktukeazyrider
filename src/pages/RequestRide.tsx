@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Navigation, ArrowRight, User, History, Database } from 'lucide-react';
 import { ApiClient } from '../lib/api';
