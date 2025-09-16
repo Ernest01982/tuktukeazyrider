@@ -52,7 +52,7 @@ export const useAuth = (): AuthState => {
         .select(`
           id,
           role,
-          display_name,
+          full_name,
           phone,
           photo_url,
           email,
