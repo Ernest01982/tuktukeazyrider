@@ -9,6 +9,7 @@ import { WrongApp } from './pages/WrongApp';
 import { RequestRide } from './pages/RequestRide';
 import { RideTracking } from './pages/RideTracking';
 import { History } from './pages/History';
+import { Profile } from './pages/Profile';
 import { Landing } from './pages/Landing';
 import { validateEnvVars } from './lib/utils';
 import { APP_CONFIG } from './lib/constants';
@@ -57,6 +58,12 @@ function App() {
           <Route path="/history" element={
             <ProtectedRoute>
               <History />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           } />
           

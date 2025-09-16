@@ -38,12 +38,27 @@ export const withRetry = async <T>(
 // Enhanced Supabase client with error handling
 export class ApiClient {
   private static instance: ApiClient;
+  private requestCount = 0;
+  private readonly maxConcurrentRequests = 5;
 
   public static getInstance(): ApiClient {
     if (!ApiClient.instance) {
       ApiClient.instance = new ApiClient();
     }
     return ApiClient.instance;
+  }
+
+  private async executeWithRateLimit<T>(operation: () => Promise<T>): Promise<T> {
+    if (this.requestCount >= this.maxConcurrentRequests) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    this.requestCount++;
+    try {
+      return await operation();
+    } finally {
+      this.requestCount--;
+    }
   }
 
   // Rides API
@@ -58,7 +73,7 @@ export class ApiClient {
     estimated_fare: number;
   }): Promise<ApiResponse> {
     try {
-      const { data, error } = await withRetry(async () => {
+      const { data, error } = await this.executeWithRateLimit(() => withRetry(async () => {
         return await supabase
           .from('rides')
           .insert({
@@ -73,7 +88,7 @@ export class ApiClient {
           })
           .select()
           .single();
-      });
+      }));
 
       if (error) {
         const appError = handleError(error);
@@ -91,7 +106,7 @@ export class ApiClient {
 
   async getRide(rideId: string, userId: string): Promise<ApiResponse> {
     try {
-      const { data, error } = await withRetry(async () => {
+      const { data, error } = await this.executeWithRateLimit(() => withRetry(async () => {
         return await supabase
           .from('rides')
           .select(`
@@ -101,7 +116,7 @@ export class ApiClient {
           .eq('id', rideId)
           .eq('rider_id', userId)
           .single();
-      });
+      }));
 
       if (error) {
         const appError = handleError(error);
@@ -119,7 +134,7 @@ export class ApiClient {
 
   async cancelRide(rideId: string): Promise<ApiResponse> {
     try {
-      const { data, error } = await withRetry(async () => {
+      const { data, error } = await this.executeWithRateLimit(() => withRetry(async () => {
         return await supabase
           .from('rides')
           .update({ 
@@ -129,7 +144,7 @@ export class ApiClient {
           .eq('status', 'REQUESTED') // Only allow cancelling requested rides
           .select()
           .single();
-      });
+      }));
 
       if (error) {
         const appError = handleError(error);

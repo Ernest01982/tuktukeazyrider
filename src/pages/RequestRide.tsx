@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Navigation, ArrowRight } from 'lucide-react';
+import { MapPin, Navigation, ArrowRight, User, History } from 'lucide-react';
 import { ApiClient } from '../lib/api';
 import { useAuth } from '../hooks/useAuth';
 import { useDebounce } from '../hooks/useDebounce';
@@ -203,9 +203,25 @@ export const RequestRide: React.FC = () => {
     <div className="min-h-screen bg-surface flex flex-col">
       {/* Header */}
       <div className="bg-white shadow-sm p-4">
-        <h1 className="text-xl font-bold text-text text-center">
-          Request a Ride
-        </h1>
+        <div className="flex items-center justify-between">
+          <button 
+            onClick={() => navigate('/history')}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <History className="w-6 h-6 text-gray-600" />
+          </button>
+          
+          <h1 className="text-xl font-bold text-text">
+            Request a Ride
+          </h1>
+          
+          <button 
+            onClick={() => navigate('/profile')}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <User className="w-6 h-6 text-gray-600" />
+          </button>
+        </div>
       </div>
 
       {/* Map */}

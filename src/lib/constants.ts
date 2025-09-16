@@ -48,6 +48,15 @@ export const APP_CONFIG = {
     animationDuration: 300,
     debounceDelay: 500,
     loadingTimeout: 10000, // 10 seconds
+    maxFileSize: 5 * 1024 * 1024, // 5MB for profile photos
+  },
+  
+  // Feature flags
+  features: {
+    profilePhotoUpload: true,
+    pushNotifications: false,
+    referralSystem: false,
+    advancedFilters: false,
   },
 } as const;
 

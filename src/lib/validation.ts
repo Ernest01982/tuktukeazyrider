@@ -92,3 +92,36 @@ export const validateForm = (
     throw new ValidationError(errors.join(', '), 'FORM_VALIDATION_ERROR');
   }
 };
+
+// File validation
+export const validateImageFile = (file: File): void => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  
+  if (!allowedTypes.includes(file.type)) {
+    throw new ValidationError(
+      'Invalid file type. Please upload a JPEG, PNG, or WebP image.',
+      'INVALID_FILE_TYPE'
+    );
+  }
+  
+  if (file.size > maxSize) {
+    throw new ValidationError(
+      'File size too large. Please upload an image smaller than 5MB.',
+      'FILE_TOO_LARGE'
+    );
+  }
+};
+
+// Enhanced phone validation for Indonesian numbers
+export const validateIndonesianPhone = (phone: string): boolean => {
+  // Indonesian phone number patterns
+  const patterns = [
+    /^\+62[0-9]{9,12}$/, // International format
+    /^62[0-9]{9,12}$/, // Without plus
+    /^0[0-9]{9,12}$/, // Local format
+    /^8[0-9]{8,11}$/, // Mobile without leading 0
+  ];
+  
+  return patterns.some(pattern => pattern.test(phone.replace(/[\s-]/g, '')));
+};

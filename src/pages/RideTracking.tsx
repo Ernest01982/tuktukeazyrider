@@ -7,6 +7,7 @@ import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import { formatCurrency, formatRelativeTime } from '../lib/utils';
 import { Button } from '../components/Button';
 import { StatusChip } from '../components/StatusChip';
+import { PaymentReceipt } from '../components/PaymentReceipt';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -58,6 +59,7 @@ export const RideTracking: React.FC = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [rating, setRating] = useState(5);
   const [ratingNote, setRatingNote] = useState('');
+  const [showReceipt, setShowReceipt] = useState(false);
 
   const { isLoaded, map } = useGoogleMaps('ride-map', {
     center: { lat: -6.2088, lng: 106.8456 },
@@ -180,6 +182,10 @@ export const RideTracking: React.FC = () => {
       if (data) {
         setPayment(data);
       }
+    };
+
+    const handleViewReceipt = () => {
+      setShowReceipt(true);
     };
 
     fetchPayment();
@@ -511,6 +517,16 @@ export const RideTracking: React.FC = () => {
               Rate Driver
             </Button>
           )}
+
+          {payment?.status === 'SUCCEEDED' && (
+            <Button
+              variant="outline"
+              fullWidth
+              onClick={handleViewReceipt}
+            >
+              View Receipt
+            </Button>
+          )}
         </div>
 
         {payment?.status === 'SUCCEEDED' && (
@@ -521,6 +537,15 @@ export const RideTracking: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Receipt Modal */}
+      {showReceipt && ride && payment && (
+        <PaymentReceipt
+          ride={ride}
+          payment={payment}
+          onClose={() => setShowReceipt(false)}
+        />
+      )}
 
       {/* Rating Modal */}
       {showRatingModal && (
