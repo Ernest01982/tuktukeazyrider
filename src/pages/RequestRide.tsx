@@ -25,6 +25,7 @@ export const RequestRide: React.FC = () => {
 
   const pickupRef = useRef<HTMLInputElement>(null);
   const dropoffRef = useRef<HTMLInputElement>(null);
+  const markersRef = useRef<google.maps.Marker[]>([]);
   
   const { isLoaded, loadError, map } = useGoogleMaps('map', {
     center: APP_CONFIG.map.defaultCenter,
@@ -37,6 +38,16 @@ export const RequestRide: React.FC = () => {
   // Debounce place changes to avoid excessive calculations
   const debouncedPickupPlace = useDebounce(pickupPlace, APP_CONFIG.ui.debounceDelay);
   const debouncedDropoffPlace = useDebounce(dropoffPlace, APP_CONFIG.ui.debounceDelay);
+
+  // Cleanup function for markers
+  const clearMarkers = () => {
+    markersRef.current.forEach(marker => {
+      if (marker.getMap()) {
+        marker.setMap(null);
+      }
+    });
+    markersRef.current = [];
+  };
 
   // Calculate fare when both places are selected
   useEffect(() => {
@@ -72,11 +83,7 @@ export const RequestRide: React.FC = () => {
           map.fitBounds(bounds);
         
           // Clear existing markers
-          // Clear existing markers (production-ready marker management)
-          if (window.currentMarkers) {
-            window.currentMarkers.forEach(marker => marker.setMap(null));
-          }
-          window.currentMarkers = [];
+          clearMarkers();
           
           // Add pickup marker
           const pickupMarker = new google.maps.Marker({
@@ -108,8 +115,8 @@ export const RequestRide: React.FC = () => {
             },
           });
           
-          // Store markers for cleanup
-          window.currentMarkers = [pickupMarker, dropoffMarker];
+          // Store markers in ref for cleanup
+          markersRef.current = [pickupMarker, dropoffMarker];
         }
       } catch (error) {
         setValidationError(error instanceof Error ? error.message : 'Invalid locations selected');
@@ -120,10 +127,23 @@ export const RequestRide: React.FC = () => {
       setFare(null);
       setDistance(null);
       setValidationError(null);
+      clearMarkers();
     }
     
     endTiming();
+    
+    // Cleanup function
+    return () => {
+      clearMarkers();
+    };
   }, [debouncedPickupPlace, debouncedDropoffPlace, map]);
+
+  // Cleanup markers on component unmount
+  useEffect(() => {
+    return () => {
+      clearMarkers();
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

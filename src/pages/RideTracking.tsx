@@ -60,11 +60,22 @@ export const RideTracking: React.FC = () => {
   const [rating, setRating] = useState(5);
   const [ratingNote, setRatingNote] = useState('');
   const [showReceipt, setShowReceipt] = useState(false);
+  const markersRef = useRef<google.maps.Marker[]>([]);
 
   const { isLoaded, map } = useGoogleMaps('ride-map', {
     center: { lat: -6.2088, lng: 106.8456 },
     zoom: 15,
   });
+
+  // Cleanup function for markers
+  const clearMarkers = () => {
+    markersRef.current.forEach(marker => {
+      if (marker.getMap()) {
+        marker.setMap(null);
+      }
+    });
+    markersRef.current = [];
+  };
 
   // Fetch initial ride data
   useEffect(() => {
@@ -215,10 +226,7 @@ export const RideTracking: React.FC = () => {
     const bounds = new google.maps.LatLngBounds();
     
     // Clear existing markers
-    if (window.rideMarkers) {
-      window.rideMarkers.forEach(marker => marker.setMap(null));
-    }
-    window.rideMarkers = [];
+    clearMarkers();
     
     // Use lat/lng coordinates directly
     if (ride.pickup_lat && ride.pickup_lng && ride.dropoff_lat && ride.dropoff_lng) {
@@ -258,7 +266,7 @@ export const RideTracking: React.FC = () => {
         },
       });
       
-      window.rideMarkers = [pickupMarker, dropoffMarker];
+      markersRef.current = [pickupMarker, dropoffMarker];
 
       // Add driver marker if available
       if (driverLocation && driverLocation.location) {
@@ -284,14 +292,26 @@ export const RideTracking: React.FC = () => {
             },
           });
           
-          window.rideMarkers.push(driverMarker);
+          markersRef.current.push(driverMarker);
         }
       }
 
       // Fit bounds with padding
       map.fitBounds(bounds, { padding: 50 });
     }
+    
+    // Cleanup function
+    return () => {
+      clearMarkers();
+    };
   }, [map, ride, driverLocation, isLoaded]);
+
+  // Cleanup markers on component unmount
+  useEffect(() => {
+    return () => {
+      clearMarkers();
+    };
+  }, []);
 
   const handleCancelRide = async () => {
     if (!ride || ride.status !== 'REQUESTED') return;
