@@ -147,7 +147,10 @@ export const Login: React.FC = () => {
         }
 
         if (data.user) {
-          toast.success('Successfully logged in!');
+          // Add a small delay to ensure profile is loaded
+          setTimeout(() => {
+            toast.success('Successfully logged in!');
+          }, 500);
         }
       }
     } catch (error) {
