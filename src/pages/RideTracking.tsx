@@ -67,15 +67,20 @@ export const RideTracking: React.FC = () => {
     zoom: 15,
   });
 
-  // Cleanup function for markers
-  const clearMarkers = () => {
+  // Safe cleanup function for markers
+  const clearMarkers = useCallback(() => {
     markersRef.current.forEach(marker => {
-      if (marker.getMap()) {
-        marker.setMap(null);
+      try {
+        if (marker && marker.getMap()) {
+          marker.setMap(null);
+        }
+      } catch (error) {
+        // Silently ignore errors when removing markers
+        console.debug('Marker cleanup error (safe to ignore):', error);
       }
     });
     markersRef.current = [];
-  };
+  }, []);
 
   // Fetch initial ride data
   useEffect(() => {
@@ -236,82 +241,87 @@ export const RideTracking: React.FC = () => {
       bounds.extend(pickup);
       bounds.extend(dropoff);
 
-      // Add pickup marker
-      const pickupMarker = new google.maps.Marker({
-        position: pickup,
-        map: map,
-        title: 'Pickup',
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: '#2EC4B6',
-          fillOpacity: 1,
-          strokeColor: '#ffffff',
-          strokeWeight: 2,
-        },
-      });
-
-      // Add dropoff marker
-      const dropoffMarker = new google.maps.Marker({
-        position: dropoff,
-        map: map,
-        title: 'Drop-off',
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: '#FF6B6B',
-          fillOpacity: 1,
-          strokeColor: '#ffffff',
-          strokeWeight: 2,
-        },
-      });
-      
-      markersRef.current = [pickupMarker, dropoffMarker];
-
-      // Add driver marker if available
-      if (driverLocation && driverLocation.location) {
-        const driverMatch = driverLocation.location.match(/POINT\(([^ ]+) ([^ )]+)\)/);
-        if (driverMatch) {
-          const driverLng = parseFloat(driverMatch[1]);
-          const driverLat = parseFloat(driverMatch[2]);
-          const driverPos = new google.maps.LatLng(driverLat, driverLng);
-          
-          bounds.extend(driverPos);
-          
-          const driverMarker = new google.maps.Marker({
-            position: driverPos,
+      // Use setTimeout to ensure DOM is ready
+      setTimeout(() => {
+        try {
+          // Add pickup marker
+          const pickupMarker = new google.maps.Marker({
+            position: pickup,
             map: map,
-            title: 'Driver',
+            title: 'Pickup',
             icon: {
-              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-              scale: 8,
-              fillColor: '#F2C94C',
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#2EC4B6',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            },
+          });
+
+          // Add dropoff marker
+          const dropoffMarker = new google.maps.Marker({
+            position: dropoff,
+            map: map,
+            title: 'Drop-off',
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#FF6B6B',
               fillOpacity: 1,
               strokeColor: '#ffffff',
               strokeWeight: 2,
             },
           });
           
-          markersRef.current.push(driverMarker);
-        }
-      }
+          markersRef.current = [pickupMarker, dropoffMarker];
 
-      // Fit bounds with padding
-      map.fitBounds(bounds, { padding: 50 });
+          // Add driver marker if available
+          if (driverLocation && driverLocation.location) {
+            const driverMatch = driverLocation.location.match(/POINT\(([^ ]+) ([^ )]+)\)/);
+            if (driverMatch) {
+              const driverLng = parseFloat(driverMatch[1]);
+              const driverLat = parseFloat(driverMatch[2]);
+              const driverPos = new google.maps.LatLng(driverLat, driverLng);
+              
+              bounds.extend(driverPos);
+              
+              const driverMarker = new google.maps.Marker({
+                position: driverPos,
+                map: map,
+                title: 'Driver',
+                icon: {
+                  path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                  scale: 8,
+                  fillColor: '#F2C94C',
+                  fillOpacity: 1,
+                  strokeColor: '#ffffff',
+                  strokeWeight: 2,
+                },
+              });
+              
+              markersRef.current.push(driverMarker);
+            }
+          }
+
+          // Fit bounds with padding after markers are created
+          map.fitBounds(bounds, { padding: 50 });
+        } catch (error) {
+          console.debug('Marker creation error:', error);
+        }
+      }, 100);
     }
-    
-    // Cleanup function
-    return () => {
-      clearMarkers();
-    };
-  }, [map, ride, driverLocation, isLoaded]);
+  }, [map, ride, driverLocation, isLoaded, clearMarkers]);
 
   // Cleanup markers on component unmount
   useEffect(() => {
     return () => {
-      clearMarkers();
+      // Use setTimeout to ensure cleanup happens after React's DOM operations
+      setTimeout(() => {
+        clearMarkers();
+      }, 0);
     };
-  }, []);
+  }, [clearMarkers]);
 
   const handleCancelRide = async () => {
     if (!ride || ride.status !== 'REQUESTED') return;

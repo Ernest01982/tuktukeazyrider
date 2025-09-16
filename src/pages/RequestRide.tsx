@@ -39,15 +39,20 @@ export const RequestRide: React.FC = () => {
   const debouncedPickupPlace = useDebounce(pickupPlace, APP_CONFIG.ui.debounceDelay);
   const debouncedDropoffPlace = useDebounce(dropoffPlace, APP_CONFIG.ui.debounceDelay);
 
-  // Cleanup function for markers
-  const clearMarkers = () => {
+  // Safe cleanup function for markers
+  const clearMarkers = useCallback(() => {
     markersRef.current.forEach(marker => {
-      if (marker.getMap()) {
-        marker.setMap(null);
+      try {
+        if (marker && marker.getMap()) {
+          marker.setMap(null);
+        }
+      } catch (error) {
+        // Silently ignore errors when removing markers
+        console.debug('Marker cleanup error (safe to ignore):', error);
       }
     });
     markersRef.current = [];
-  };
+  }, []);
 
   // Calculate fare when both places are selected
   useEffect(() => {
@@ -80,43 +85,52 @@ export const RequestRide: React.FC = () => {
           const bounds = new google.maps.LatLngBounds();
           bounds.extend(debouncedPickupPlace.geometry.location);
           bounds.extend(debouncedDropoffPlace.geometry.location);
-          map.fitBounds(bounds);
         
           // Clear existing markers
           clearMarkers();
           
-          // Add pickup marker
-          const pickupMarker = new google.maps.Marker({
-            position: debouncedPickupPlace.geometry.location,
-            map: map,
-            title: 'Pickup Location',
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
-              fillColor: '#2EC4B6',
-              fillOpacity: 1,
-              strokeColor: '#ffffff',
-              strokeWeight: 2,
-            },
-          });
-        
-          // Add dropoff marker
-          const dropoffMarker = new google.maps.Marker({
-            position: debouncedDropoffPlace.geometry.location,
-            map: map,
-            title: 'Drop-off Location',
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
-              fillColor: '#FF6B6B',
-              fillOpacity: 1,
-              strokeColor: '#ffffff',
-              strokeWeight: 2,
-            },
-          });
-          
-          // Store markers in ref for cleanup
-          markersRef.current = [pickupMarker, dropoffMarker];
+          // Use setTimeout to ensure DOM is ready
+          setTimeout(() => {
+            try {
+              // Add pickup marker
+              const pickupMarker = new google.maps.Marker({
+                position: debouncedPickupPlace.geometry.location,
+                map: map,
+                title: 'Pickup Location',
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 10,
+                  fillColor: '#2EC4B6',
+                  fillOpacity: 1,
+                  strokeColor: '#ffffff',
+                  strokeWeight: 2,
+                },
+              });
+            
+              // Add dropoff marker
+              const dropoffMarker = new google.maps.Marker({
+                position: debouncedDropoffPlace.geometry.location,
+                map: map,
+                title: 'Drop-off Location',
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 10,
+                  fillColor: '#FF6B6B',
+                  fillOpacity: 1,
+                  strokeColor: '#ffffff',
+                  strokeWeight: 2,
+                },
+              });
+              
+              // Store markers in ref for cleanup
+              markersRef.current = [pickupMarker, dropoffMarker];
+              
+              // Fit bounds after markers are created
+              map.fitBounds(bounds);
+            } catch (error) {
+              console.debug('Marker creation error:', error);
+            }
+          }, 100);
         }
       } catch (error) {
         setValidationError(error instanceof Error ? error.message : 'Invalid locations selected');
@@ -132,18 +146,17 @@ export const RequestRide: React.FC = () => {
     
     endTiming();
     
-    // Cleanup function
-    return () => {
-      clearMarkers();
-    };
-  }, [debouncedPickupPlace, debouncedDropoffPlace, map]);
+  }, [debouncedPickupPlace, debouncedDropoffPlace, map, clearMarkers]);
 
   // Cleanup markers on component unmount
   useEffect(() => {
     return () => {
-      clearMarkers();
+      // Use setTimeout to ensure cleanup happens after React's DOM operations
+      setTimeout(() => {
+        clearMarkers();
+      }, 0);
     };
-  }, []);
+  }, [clearMarkers]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
