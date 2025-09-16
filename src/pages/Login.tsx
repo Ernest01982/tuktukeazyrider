@@ -113,7 +113,18 @@ export const Login: React.FC = () => {
         });
 
         if (error) {
-          toast.error(error.message);
+          console.error('Sign up error:', error);
+          const isDatabaseFailure =
+            error?.status === 500 ||
+            error.message?.toLowerCase().includes('database error saving new user');
+
+          if (isDatabaseFailure) {
+            toast.error(
+              'Sign up failed because the Supabase database rejected the request. Please run the database migration (supabase/migrations/create_schema.sql) in your project and try again.'
+            );
+          } else {
+            toast.error(error.message);
+          }
           return;
         }
 
