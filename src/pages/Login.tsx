@@ -99,28 +99,47 @@ export const Login: React.FC = () => {
 
     try {
       if (isSignUp) {
-        // Sign up new user with metadata for automatic profile creation
+        // Create auth user without any metadata to avoid database triggers
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
-          password: formData.password,
-          options: {
-            data: {
-              full_name: formData.fullName.trim(),
-              phone: formData.phone || null
-            }
-          }
+          password: formData.password
         });
 
         if (error) {
           console.error('Sign up error:', error);
-          toast.error(error.message || 'Failed to create account');
+          if (error.message.includes('Database error saving new user')) {
+            toast.error('Database setup incomplete. Please contact support.');
+          } else {
+            toast.error(error.message || 'Failed to create account');
+          }
           return;
         }
 
         if (data.user) {
-          // Check if user needs email confirmation
+          // Try to create profile manually after successful auth signup
+          try {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                id: data.user.id,
+                full_name: formData.fullName.trim(),
+                email: formData.email,
+                phone: formData.phone || null,
+                role: 'rider'
+              });
+
+            if (profileError) {
+              console.warn('Profile creation failed:', profileError);
+              // Don't fail the signup - profile can be created later
+            }
+          } catch (profileError) {
+            console.warn('Profile creation error:', profileError);
+            // Don't fail the signup - profile can be created later
+          }
+
+          // Handle email confirmation flow
           if (!data.session) {
-            toast.success('Please check your email to confirm your account before signing in.');
+            toast.success('Account created! Please check your email to confirm before signing in.');
             setIsSignUp(false);
             setFormData({
               email: formData.email,
