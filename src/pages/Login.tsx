@@ -99,15 +99,10 @@ export const Login: React.FC = () => {
 
     try {
       if (isSignUp) {
-        // Sign up new user
+        // Sign up new user without metadata to avoid database trigger issues
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
-          options: {
-            data: {
-              full_name: formData.fullName.trim(),
-            }
-          }
         });
 
         if (error) {
@@ -117,7 +112,27 @@ export const Login: React.FC = () => {
         }
 
         if (data.user) {
-          // Profile is created automatically by database trigger
+          // Manually create profile after successful auth signup
+          try {
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .insert({
+                id: data.user.id,
+                full_name: formData.fullName.trim(),
+                email: formData.email,
+                phone: formData.phone || null,
+                role: 'rider'
+              });
+
+            if (profileError) {
+              console.error('Profile creation error:', profileError);
+              // Don't fail the signup if profile creation fails
+              // User can still sign in and profile will be created on first login
+            }
+          } catch (profileError) {
+            console.error('Profile creation failed:', profileError);
+          }
+
           toast.success('Account created successfully! You can now sign in.');
           
           // Switch to sign-in mode after successful registration
